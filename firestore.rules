@@ -1,0 +1,293 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Users Collection Rules
+    match /users/{userId} {
+      // Users can read and write their own data
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // User Settings Collection Rules
+    match /user_settings/{userId} {
+      // Users can only read and write their own settings
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Allow all operations on conversations and their subcollections
+    match /conversations/{conversationId} {
+      allow read, write: if isAuthenticated();
+      
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+      
+      match /typing_indicators/{userId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+    
+    // Allow all operations on user_presence
+    match /user_presence/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Allow all operations on team_chats
+    match /team_chats/{chatId} {
+      allow read, write: if isAuthenticated();
+      
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+    
+    // Allow all operations on unread_counts
+    match /unread_counts/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Allow all operations on messages collection
+    match /messages/{messageId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Dashboard related collections
+    match /activities/{activityId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /dashboard/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /templates/{templateId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /todos/{todoId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /events/{eventId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /booking_requests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /homework/{homeworkId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // CTA related collections
+    match /cta_locations/{locationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /cta_content/{contentId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Practice plans and templates
+    match /practice_plans/{planId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Drills collection
+    match /drills/{drillId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Volunteer related collections
+    match /volunteer_stats/{statsId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /volunteer_history/{historyId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /volunteer_roles/{roleId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Team related collections
+    match /team_resources/{resourceId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_activities/{activityId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_events/{eventId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_members/{memberId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_invites/{inviteId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_requests/{requestId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_settings/{settingId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_stats/{statId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_data/{dataId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Team metrics and awards
+    match /team_metrics/{metricId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /team_awards/{awardId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Progress reports collection
+    match /progress_reports/{reportId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Leaderboard related collections
+    match /leaderboards/{leaderboardId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /situational_awareness/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /scenarios/{scenarioId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /scenario_collections/{collectionId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // User stats collection for leaderboards
+    match /user_stats/{statsId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Scenario attempts collection
+    match /scenario_attempts/{attemptId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && (request.auth.uid == resource.data.userId || isAdmin());
+    }
+
+    // Chants collection
+    match /chants/{chantId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Clinics collection
+    match /clinics/{clinicId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Player media collection
+    match /player_media/{mediaId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Lessons collection
+    match /lessons/{lessonId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Collections 
+    match /collections/{collectionId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isLeagueManager(leagueId) {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/leagues/$(leagueId)).data.managers.hasAny([request.auth.uid]) ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isTeamCoach(teamId) {
+      let teamData = get(/databases/$(database)/documents/teams/$(teamId)).data;
+      return isAuthenticated() && (
+        teamData.coachId == request.auth.uid ||
+        (teamData.coaches != null && teamData.coaches.hasAny([request.auth.uid]))
+      );
+    }
+
+    function isTeamMember(teamId) {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.teams.hasAny([teamId])
+      );
+    }
+
+    // Games Collection Rules
+    match /games/{gameId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // League Resources Rules
+    match /league_resources/{resourceId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // League Rules
+    match /leagues/{leagueId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Notification history collection
+    match /notification_history/{docId} {
+      allow read, write: if isAuthenticated() && isAdmin();
+    }
+
+    // Notification tokens collection
+    match /notification_tokens/{tokenId} {
+      // Allow users to read, create, and update tokens that belong to them
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Admin can delete any token
+      allow delete: if isAuthenticated();
+    }
+
+    // Teams Rules
+    match /teams/{teamId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isAdmin() || isTeamCoach(teamId));
+      allow delete: if isAuthenticated() && (isAdmin() || isTeamCoach(teamId));
+    }
+  }
+}

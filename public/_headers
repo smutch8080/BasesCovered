@@ -1,0 +1,47 @@
+/*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+
+/*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+
+/service-worker.js
+  Content-Type: application/javascript; charset=utf-8
+  Service-Worker-Allowed: /
+  Cache-Control: no-cache
+
+/firebase-messaging-sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Service-Worker-Allowed: /
+  Cache-Control: no-cache
+
+/firebase-messaging-sw-loader.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+
+/service-worker-loader.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache
+
+/static/assets/*.js
+  Content-Type: application/javascript; charset=utf-8
+
+/*.css
+  Content-Type: text/css
+  Cache-Control: no-cache
+
+/static/assets/*.css
+  Content-Type: text/css
+
+# Set MIME types for JavaScript files
+/static/assets/*-*.js
+  Content-Type: text/javascript
+
+/*.mjs
+  Content-Type: text/javascript
+
+# Set MIME types for CSS files
+/static/assets/*-*.css
+  Content-Type: text/css 

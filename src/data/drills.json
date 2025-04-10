@@ -1,0 +1,58 @@
+{
+  "drills": [
+    {
+      "name": "Soft Toss",
+      "shortDescription": "Basic hitting drill using side toss",
+      "description": "Player stands in hitting position while coach kneels to the side and tosses balls for the player to hit into a net. Focus on proper form and contact.",
+      "whatToLookFor": "Watch for proper hip rotation, level swing, and consistent contact point. Ensure the player keeps their head still and follows through.",
+      "category": "Hitting",
+      "experienceLevel": "Beginner",
+      "duration": 15,
+      "equipment": ["Batting Tee", "Balls", "Bat", "Net"],
+      "imageUrl": "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?auto=format&fit=crop&q=80&w=2070",
+      "resources": [
+        {
+          "type": "video",
+          "title": "Soft Toss Basics",
+          "url": "https://www.youtube.com/watch?v=example1"
+        }
+      ]
+    },
+    {
+      "name": "Rapid Fire Grounders",
+      "shortDescription": "Quick reaction fielding practice",
+      "description": "Players line up while coach rapidly hits ground balls to different positions. Players must field cleanly and throw to first base.",
+      "whatToLookFor": "Proper fielding position, glove placement, and footwork. Watch for clean transfers and accurate throws.",
+      "category": "Fielding",
+      "experienceLevel": "Intermediate",
+      "duration": 20,
+      "equipment": ["Gloves", "Balls", "Bat"],
+      "imageUrl": "https://images.unsplash.com/photo-1508802244473-e078823a84b0?auto=format&fit=crop&q=80&w=2070",
+      "resources": [
+        {
+          "type": "video",
+          "title": "Fielding Fundamentals",
+          "url": "https://www.youtube.com/watch?v=example2"
+        }
+      ]
+    },
+    {
+      "name": "Sacrifice Bunt Progression",
+      "shortDescription": "Practice proper bunting technique",
+      "description": "Players practice bunting technique starting with no pitch, then soft toss, and finally live pitching. Focus on proper bat angle and ball placement.",
+      "whatToLookFor": "Proper pivot, bat angle, and ball control. Ensure players are using proper footwork and maintaining balance.",
+      "category": "Bunting",
+      "experienceLevel": "Intermediate",
+      "duration": 15,
+      "equipment": ["Balls", "Bats", "Batting Tee"],
+      "imageUrl": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=2067",
+      "resources": [
+        {
+          "type": "document",
+          "title": "Bunting Guide",
+          "url": "https://example.com/bunting-guide"
+        }
+      ]
+    }
+  ]
+}
