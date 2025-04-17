@@ -5,7 +5,7 @@ import { UserRole } from '../types/auth';
 
 interface Props {
   children: React.ReactNode;
-  requiredRole?: UserRole;
+  requiredRole?: string;
   leagueId?: string;
   teamId?: string;
 }
@@ -16,21 +16,21 @@ export const ProtectedRoute: React.FC<Props> = ({
   leagueId,
   teamId
 }) => {
-  const { currentUser, hasPermission, isInLeague, isInTeam } = useAuth();
+  const { currentUser } = useAuth();
 
   if (!currentUser) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/auth?mode=signin" />;
   }
 
-  if (requiredRole && !hasPermission(requiredRole)) {
+  if (requiredRole && currentUser.role !== requiredRole) {
     return <Navigate to="/unauthorized" />;
   }
 
-  if (leagueId && !isInLeague(leagueId)) {
+  if (leagueId && !currentUser.isInLeague(leagueId)) {
     return <Navigate to="/unauthorized" />;
   }
 
-  if (teamId && !isInTeam(teamId)) {
+  if (teamId && !currentUser.isInTeam(teamId)) {
     return <Navigate to="/unauthorized" />;
   }
 

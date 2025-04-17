@@ -47,3 +47,19 @@ export interface Team {
   players: string[];
   parents: string[];
 }
+
+export interface AuthIntent {
+  type: 'booking' | 'team-invite' | 'clinic-registration';
+  data: {
+    // For team invites
+    teamId?: string;
+    inviteHash?: string;
+    // For bookings
+    coachId?: string;
+    serviceId?: string;
+    // For clinic registrations
+    clinicId?: string;
+  };
+  returnPath: string;
+  timestamp: number;
+}

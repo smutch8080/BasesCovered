@@ -201,7 +201,7 @@ function TeamInvitePage() {
 
           <div className="space-y-4">
             <button
-              onClick={() => navigate('/login', { 
+              onClick={() => navigate('/auth?mode=signin', { 
                 state: { returnUrl: window.location.pathname }
               })}
               className="w-full px-6 py-3 bg-brand-primary text-white rounded-lg hover:opacity-90"
@@ -209,7 +209,7 @@ function TeamInvitePage() {
               Sign In
             </button>
             <button
-              onClick={() => navigate('/register', {
+              onClick={() => navigate('/auth?mode=register', {
                 state: { returnUrl: window.location.pathname }
               })}
               className="w-full px-6 py-3 bg-white text-brand-primary border-2 border-brand-primary 

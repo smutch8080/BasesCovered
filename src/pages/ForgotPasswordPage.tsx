@@ -73,11 +73,11 @@ function ForgotPasswordPage() {
               
               <div className="mt-8 text-center">
                 <Link 
-                  to="/login" 
+                  to="/auth?mode=signin" 
                   className="inline-flex items-center text-brand-primary hover:text-brand-primary-dark"
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Login
+                  Back to Sign In
                 </Link>
               </div>
             </div>
@@ -112,10 +112,13 @@ function ForgotPasswordPage() {
                 </button>
               </div>
 
-              <div className="text-center">
-                <Link to="/login" className="link inline-flex items-center">
+              <div className="mt-4 text-center">
+                <Link
+                  to="/auth?mode=signin"
+                  className="text-brand-primary hover:opacity-90 inline-flex items-center"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Login
+                  Back to Sign In
                 </Link>
               </div>
             </form>

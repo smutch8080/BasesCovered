@@ -356,10 +356,10 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
-                to="/register"
-                className="px-8 py-4 bg-brand-primary text-white rounded-lg font-semibold hover:bg-opacity-90 transition-colors text-lg"
+                to="/auth?mode=register"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-brand-primary hover:opacity-90"
               >
-                Start Your Journey
+                Get Started
               </Link>
               <Link
                 to="/programs"

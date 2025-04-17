@@ -210,14 +210,15 @@ function DrillDetailPage() {
                   Add to Plan
                 </button>
               ) : (
-                <Link
-                  to="/register"
-                  className="flex items-center gap-2 px-4 py-2 bg-brand-primary text-white rounded-lg
-                    hover:opacity-90 transition-colors"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Sign Up to Add
-                </Link>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <p className="text-gray-600 mb-4">Sign in to save this drill to your collection</p>
+                  <Link
+                    to="/auth?mode=register"
+                    className="btn-primary inline-flex items-center"
+                  >
+                    Create Account
+                  </Link>
+                </div>
               )}
             </div>
           </div>

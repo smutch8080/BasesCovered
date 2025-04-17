@@ -8,6 +8,7 @@ import { UserRole } from './types/auth';
 // Pages
 import HomePage from './pages/HomePage';
 import LandingPage from './pages/LandingPage';
+import AuthPage from './pages/AuthPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -109,6 +110,7 @@ export default function Routes() {
           <HomePage />
         ) : <LandingPage />
       } />
+      <Route path="/auth" element={<AuthPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />

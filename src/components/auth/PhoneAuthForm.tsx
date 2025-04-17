@@ -8,19 +8,22 @@ import { useNavigate } from 'react-router-dom';
 import { formatPhoneNumber, createRecaptchaVerifier, verifyPhoneConfirmationCode } from '../../lib/authUtils';
 import PhoneInput from '../ui/PhoneInput';
 import { parsePhoneNumber, isValidPhoneNumber } from 'react-phone-number-input';
+import { Trophy, Mail } from 'lucide-react';
 
 interface PhoneAuthFormProps {
   mode: 'signin' | 'signup';
   role?: UserRole;
   displayName?: string;
   onSuccess: () => void;
+  onEmailClick: () => void;
 }
 
 export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
   mode,
-  role,
+  role: initialRole,
   displayName = '',
-  onSuccess
+  onSuccess,
+  onEmailClick
 }) => {
   // Get auth context and router hooks
   const { signInWithPhone, signUpWithPhone } = useAuth();
@@ -34,6 +37,7 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [phoneInputError, setPhoneInputError] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(initialRole || UserRole.player);
   
   // Refs
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
@@ -213,8 +217,13 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
           result = await signInWithPhone(formattedPhone, recaptchaVerifierRef.current);
         } else {
           // Sign up with phone
-          console.log('Using signUpWithPhone from AuthContext with role:', role);
-          result = await signUpWithPhone(formattedPhone, recaptchaVerifierRef.current, role || UserRole.player, displayName);
+          console.log('Using signUpWithPhone from AuthContext with role:', selectedRole);
+          result = await signUpWithPhone(
+            formattedPhone,
+            recaptchaVerifierRef.current,
+            selectedRole,
+            displayName || `New ${selectedRole}`
+          );
         }
         
         console.log('Phone verification code sent successfully');
@@ -293,7 +302,7 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
       const user = await verifyPhoneConfirmationCode(
         confirmationResult,
         verificationCode,
-        mode === 'signup' ? role : undefined,
+        mode === 'signup' ? selectedRole : undefined,
         mode === 'signup' ? displayName : undefined
       );
       
@@ -330,7 +339,43 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-md mx-auto space-y-8">
+      {/* Logo and Welcome Text */}
+      <div className="text-center">
+        <div className="mx-auto h-12 w-12 text-gray-900">
+          <Trophy className="h-full w-full" />
+        </div>
+        <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
+          {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+        </h2>
+        <p className="mt-2 text-sm text-gray-600">
+          {mode === 'signin' 
+            ? 'Sign in to continue to your account'
+            : 'Join our community of coaches and players'}
+        </p>
+      </div>
+
+      {/* Email Option */}
+      <div>
+        <button
+          type="button"
+          onClick={onEmailClick}
+          className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary"
+        >
+          <Mail className="h-5 w-5 mr-2 text-gray-400" />
+          {mode === 'signin' ? 'Or Sign In with Email' : 'Or Register with Email'}
+        </button>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with phone</span>
+        </div>
+      </div>
+
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
           {error}
@@ -339,6 +384,95 @@ export const PhoneAuthForm: React.FC<PhoneAuthFormProps> = ({
       
       {!codeSent ? (
         <form onSubmit={handleSendCode} className="space-y-4">
+          {mode === 'signup' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-4">
+                I am a...
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <input
+                    id="role-coach"
+                    name="role"
+                    type="radio"
+                    value={UserRole.coach}
+                    checked={selectedRole === UserRole.coach}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="role-coach"
+                    className={`flex items-center justify-center p-4 border rounded-lg cursor-pointer hover:border-brand-primary ${
+                      selectedRole === UserRole.coach ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                    }`}
+                  >
+                    <span className="text-base font-medium text-gray-900">Coach</span>
+                  </label>
+                </div>
+                
+                <div className="relative">
+                  <input
+                    id="role-player"
+                    name="role"
+                    type="radio"
+                    value={UserRole.player}
+                    checked={selectedRole === UserRole.player}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="role-player"
+                    className={`flex items-center justify-center p-4 border rounded-lg cursor-pointer hover:border-brand-primary ${
+                      selectedRole === UserRole.player ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                    }`}
+                  >
+                    <span className="text-base font-medium text-gray-900">Player</span>
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    id="role-parent"
+                    name="role"
+                    type="radio"
+                    value={UserRole.parent}
+                    checked={selectedRole === UserRole.parent}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="role-parent"
+                    className={`flex items-center justify-center p-4 border rounded-lg cursor-pointer hover:border-brand-primary ${
+                      selectedRole === UserRole.parent ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                    }`}
+                  >
+                    <span className="text-base font-medium text-gray-900">Parent</span>
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    id="role-league-manager"
+                    name="role"
+                    type="radio"
+                    value={UserRole.league_manager}
+                    checked={selectedRole === UserRole.league_manager}
+                    onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+                    className="sr-only"
+                  />
+                  <label
+                    htmlFor="role-league-manager"
+                    className={`flex items-center justify-center p-4 border rounded-lg cursor-pointer hover:border-brand-primary ${
+                      selectedRole === UserRole.league_manager ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                    }`}
+                  >
+                    <span className="text-base font-medium text-gray-900">League Manager</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
               Phone Number

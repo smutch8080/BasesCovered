@@ -14,8 +14,16 @@ export const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Check if we're on the landing page
-  const isLandingPage = location.pathname === '/';
+  // Check if we're on a public page where we want to show the landing menu
+  const isPublicPage = [
+    '/',
+    '/private-training',
+    '/bases-covered-clinics',
+    '/summer-team',
+    '/about',
+    '/contact',
+    '/auth'
+  ].includes(location.pathname) || location.pathname.startsWith('/auth');
 
   useEffect(() => {
     if (!currentUser) {
@@ -106,7 +114,7 @@ export const Header: React.FC = () => {
         <div className="h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Show hamburger menu button only when appropriate */}
-            {(!isLandingPage || currentUser) && (
+            {(!isPublicPage || currentUser) && (
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -124,8 +132,8 @@ export const Header: React.FC = () => {
             </Link>
           </div>
 
-          {/* Main Navigation - Only visible on landing page when not logged in */}
-          {isLandingPage && !currentUser && (
+          {/* Main Navigation - Only visible on public pages when not logged in */}
+          {isPublicPage && !currentUser && (
             <div className="hidden md:flex items-center gap-6">
               <Link 
                 to="/private-training" 
@@ -235,13 +243,13 @@ export const Header: React.FC = () => {
             ) : (
               <div className="flex items-center gap-4">
                 <Link
-                  to="/login"
+                  to="/auth?mode=signin"
                   className="text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
-                  to="/register"
+                  to="/auth?mode=register"
                   className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-colors"
                 >
                   Get Started
@@ -272,7 +280,7 @@ export const Header: React.FC = () => {
             {/* Mobile menu content */}
             <div className="p-4 space-y-4">
               {/* Show landing page links only when appropriate */}
-              {isLandingPage && !currentUser && (
+              {isPublicPage && !currentUser && (
                 <>
                   <Link 
                     to="/private-training" 
