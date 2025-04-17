@@ -33,8 +33,15 @@ interface Props {
   loading: boolean;
 }
 
+interface LocationData {
+  city: string;
+  state: string;
+  country: string;
+  placeId: string;
+}
+
 export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
-  const { signUpWithGoogle, signUpWithApple } = useAuth();
+  const { signUpWithGoogle } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -60,8 +67,6 @@ export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
 
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [touched, setTouched] = useState<Set<string>>(new Set());
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
   const [showPhoneAuth, setShowPhoneAuth] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +91,7 @@ export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
     }));
   };
 
-  const handleLocationChange = (location: any) => {
+  const handleLocationChange = (location: LocationData) => {
     setFormData(prev => ({
       ...prev,
       league: {
@@ -134,54 +139,6 @@ export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
     setFormData(prev => ({ ...prev, role }));
   };
 
-  const handleGoogleSignUp = async () => {
-    if (!formData.role) {
-      // Show error if no role selected
-      setErrors([{ field: 'role', message: 'Please select a role before continuing with Google' }]);
-      return;
-    }
-
-    try {
-      setGoogleLoading(true);
-      console.log('Starting Google sign up with role:', formData.role);
-      await signUpWithGoogle(formData.role as UserRole);
-      console.log('Google sign-up completed successfully, waiting for auth state to update');
-      // The returnUrl will be handled by the parent RegisterPage component
-      // when Google auth completes and the useEffect detects a valid currentUser
-    } catch (error: any) {
-      console.error('Failed to sign up with Google:', error);
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        toast.error('Failed to sign up with Google. Please try again.');
-      }
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
-  const handleAppleSignUp = async () => {
-    if (!formData.role) {
-      // Show error if no role selected
-      setErrors([{ field: 'role', message: 'Please select a role before continuing with Apple' }]);
-      return;
-    }
-
-    try {
-      setAppleLoading(true);
-      console.log('Starting Apple sign up with role:', formData.role);
-      await signUpWithApple(formData.role as UserRole);
-      console.log('Apple sign-up completed successfully, waiting for auth state to update');
-      // The returnUrl will be handled by the parent RegisterPage component
-      // when Apple auth completes and the useEffect detects a valid currentUser
-    } catch (error: any) {
-      console.error('Failed to sign up with Apple:', error);
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        toast.error('Failed to sign up with Apple. Please try again.');
-      }
-    } finally {
-      setAppleLoading(false);
-    }
-  };
-
   const handlePhoneAuthSuccess = () => {
     // The PhoneAuthForm component handles navigation directly,
     // so we just log success here and don't do any additional navigation
@@ -190,7 +147,7 @@ export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
   };
 
   return (
-    <form className="space-y-6 pb-20 lg:pb-0" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
       {/* Role Selection */}
       <div className="space-y-4">
         <label className="block text-sm font-medium text-gray-700">
@@ -271,38 +228,6 @@ export const RegistrationForm: React.FC<Props> = ({ onSubmit, loading }) => {
             </div>
           </div>
           <div className="mt-3 space-y-3">
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              disabled={googleLoading || !formData.role}
-              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-sm font-medium text-gray-700"
-            >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
-                <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                  <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
-                  <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
-                  <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
-                  <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
-                </g>
-              </svg>
-              {googleLoading ? 'Signing up...' : 'Sign up with Google'}
-            </button>
-            
-            {/* Commented out Apple Sign In Button
-            <button
-              type="button"
-              onClick={handleAppleSignUp}
-              disabled={appleLoading || !formData.role}
-              className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-50 text-sm font-medium text-gray-700"
-            >
-              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z" />
-                <path d="M10 2c1 .5 2 2 2 5" />
-              </svg>
-              {appleLoading ? 'Signing up...' : 'Sign up with Apple'}
-            </button>
-            */}
-
             <button
               type="button"
               onClick={() => navigate('/phone-auth-test')}

@@ -114,10 +114,10 @@ export default function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <AuthProvider>
-          <DebugProvider>
-            <HelpProvider>
-              <Router>
+        <Router>
+          <AuthProvider>
+            <DebugProvider>
+              <HelpProvider>
                 <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors">
                   <Header />
                   <main className="flex-1 overflow-auto">
@@ -136,10 +136,10 @@ export default function App() {
                   <MobileMenu />
                   <InstallPrompt />
                 </div>
-              </Router>
-            </HelpProvider>
-          </DebugProvider>
-        </AuthProvider>
+              </HelpProvider>
+            </DebugProvider>
+          </AuthProvider>
+        </Router>
       </ThemeProvider>
     </ErrorBoundary>
   );

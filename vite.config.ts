@@ -10,26 +10,57 @@ import path from 'path';
 const serviceWorkerContentTypePlugin = (): Plugin => ({
   name: 'service-worker-content-type',
   configureServer(server) {
+    // Middleware to set correct MIME type for service worker files
     server.middlewares.use((req, res, next) => {
       if (req.url && (
-        req.url.endsWith('service-worker.js') || 
-        req.url.endsWith('firebase-messaging-sw.js') ||
-        req.url.endsWith('firebase-messaging-sw-loader.js') ||
-        req.url.endsWith('service-worker-loader.js')
+        req.url.includes('service-worker.js') || 
+        req.url.includes('firebase-messaging-sw.js') ||
+        req.url.includes('firebase-messaging-sw-loader.js') ||
+        req.url.includes('service-worker-loader.js') ||
+        req.url.endsWith('.js')
       )) {
-        const filePath = path.join(__dirname, 'public', req.url);
-        // Only serve if file exists in public
-        if (fs.existsSync(filePath)) {
-          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        // Always set the correct content type for service worker files
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        
+        if (req.url.includes('service-worker') || req.url.includes('firebase-messaging')) {
           res.setHeader('Service-Worker-Allowed', '/');
-          res.setHeader('Cache-Control', 'no-cache');
-          const content = fs.readFileSync(filePath, 'utf-8');
-          res.end(content);
-          return;
         }
+        
+        // Log the request for debugging
+        console.log(`JavaScript file requested: ${req.url}`);
       }
       next();
     });
+  },
+  
+  // Copy service worker files to the build output to ensure they're included
+  closeBundle() {
+    const publicDir = path.resolve(__dirname, 'public');
+    const distDir = path.resolve(__dirname, 'dist');
+    
+    // List of service worker files to ensure they're properly copied
+    const swFiles = [
+      'firebase-messaging-sw.js',
+      'firebase-messaging-sw-loader.js',
+      'service-worker-loader.js'
+    ];
+    
+    for (const file of swFiles) {
+      const sourcePath = path.join(publicDir, file);
+      const destPath = path.join(distDir, file);
+      
+      if (fs.existsSync(sourcePath)) {
+        try {
+          const content = fs.readFileSync(sourcePath, 'utf-8');
+          fs.writeFileSync(destPath, content, 'utf-8');
+          console.log(`Copied ${file} to dist directory`);
+        } catch (err) {
+          console.error(`Error copying ${file}:`, err);
+        }
+      } else {
+        console.warn(`Service worker file not found: ${sourcePath}`);
+      }
+    }
   }
 });
 
@@ -40,8 +71,40 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'service-worker.ts',
-      registerType: 'prompt',
-      injectRegister: null, // Disable automatic registration
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'robots.txt'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        maximumFileSizeToCacheInBytes: 3000000,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        navigateFallback: '/index.html',
+        navigateFallbackAllowlist: [/^(?!\/__).*/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets'
+            }
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-webfonts',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              }
+            }
+          }
+        ]
+      },
+      devOptions: {
+        enabled: false,
+      },
       manifest: {
         name: 'BasesCovered',
         short_name: 'BasesCovered',
@@ -102,46 +165,9 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
-      },
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        maximumFileSizeToCacheInBytes: 3000000,
-        cleanupOutdatedCaches: true,
-        clientsClaim: true,
-        skipWaiting: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [
-          /^\/service-worker\.js$/,
-          /^\/firebase-messaging-sw\.js$/,
-          /^\/firebase-messaging-sw-loader\.js$/,
-          /^\/service-worker-loader\.js$/
-        ],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com/,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' }
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 60 * 24 * 365
-              }
-            }
-          }
-        ]
-      },
-      devOptions: {
-        enabled: true,
-        type: 'module',
-        navigateFallback: '/index.html'
       }
     }),
-    serviceWorkerContentTypePlugin()
+    serviceWorkerContentTypePlugin() // Add our custom plugin
   ],
   optimizeDeps: {
     exclude: ['lucide-react']

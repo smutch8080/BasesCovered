@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, Transition } from '@headlessui/react';
 import { User, MessageCircle, Bot, MenuIcon, ChevronDown, FolderOpen } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,8 +10,12 @@ import { db } from '../lib/firebase';
 
 export const Header: React.FC = () => {
   const { currentUser, signOut } = useAuth();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+
+  // Check if we're on the landing page
+  const isLandingPage = location.pathname === '/';
 
   useEffect(() => {
     if (!currentUser) {
@@ -101,10 +105,11 @@ export const Header: React.FC = () => {
         {/* Top Bar */}
         <div className="h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {currentUser && (
+            {/* Show hamburger menu button only when appropriate */}
+            {(!isLandingPage || currentUser) && (
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="xl:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                 aria-label="Toggle menu"
               >
                 <MenuIcon className="w-6 h-6" />
@@ -119,11 +124,36 @@ export const Header: React.FC = () => {
             </Link>
           </div>
 
+          {/* Main Navigation - Only visible on landing page when not logged in */}
+          {isLandingPage && !currentUser && (
+            <div className="hidden md:flex items-center gap-6">
+              <Link 
+                to="/private-training" 
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+              >
+                Private Training
+              </Link>
+              <Link 
+                to="/bases-covered-clinics" 
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+              >
+                BasesCovered Clinics
+              </Link>
+              <Link 
+                to="/summer-team" 
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+              >
+                Summer Practice Teams
+              </Link>
+            </div>
+          )}
+
           {/* Right Side Navigation */}
           <div className="flex items-center gap-4">
-            <ThemeToggle />
+           
             {currentUser ? (
               <>
+               <ThemeToggle />
                 <Link
                   to="/coaching-assistant"
                   className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors"
@@ -221,13 +251,63 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation Menu */}
+        {/* Authenticated Navigation Menu */}
         {currentUser && (
-          <NavigationMenu
+          <NavigationMenu 
             isMobileMenuOpen={isMobileMenuOpen}
             setIsMobileMenuOpen={setIsMobileMenuOpen}
           />
         )}
+
+        {/* Mobile Menu */}
+        <div
+          className={`md:hidden fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+            isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-gray-800 transform transition-transform duration-300 ${
+            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+            {/* Mobile menu content */}
+            <div className="p-4 space-y-4">
+              {/* Show landing page links only when appropriate */}
+              {isLandingPage && !currentUser && (
+                <>
+                  <Link 
+                    to="/private-training" 
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Private Training
+                  </Link>
+                  <Link 
+                    to="/bases-covered-clinics" 
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    BasesCovered Clinics
+                  </Link>
+                  <Link 
+                    to="/summer-team" 
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Summer Practice Teams
+                  </Link>
+                </>
+              )}
+              
+              {/* Show authenticated menu when logged in */}
+              {currentUser && (
+                <NavigationMenu 
+                  isMobileMenuOpen={isMobileMenuOpen} 
+                  setIsMobileMenuOpen={setIsMobileMenuOpen} 
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );

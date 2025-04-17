@@ -1,12 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   User as FirebaseUser,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   GoogleAuthProvider,
   OAuthProvider,
   PhoneAuthProvider,
@@ -16,10 +15,12 @@ import {
   updateProfile,
   signInWithCredential,
   PhoneAuthCredential,
-  sendPasswordResetEmail as firebaseSendPasswordResetEmail
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider, appleProvider, getFreshGoogleProvider } from '../lib/firebase';
+import { auth, db, googleProvider, appleProvider } from '../lib/firebase';
 import { User, UserRole } from '../types/auth';
 import toast from 'react-hot-toast';
 
@@ -69,131 +70,78 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = React.useState<User | null>(null);
   const [loading, setLoading] = React.useState(true);
 
-  // Handle redirect result
+  // Handle redirect result on mount
   React.useEffect(() => {
     const handleRedirectResult = async () => {
       try {
-        console.log('Checking for redirect result...');
+        console.log('AuthProvider: Checking for redirect result...');
         const result = await getRedirectResult(auth);
         
         if (result) {
-          console.log('Got redirect result:', {
-            providerId: result.providerId,
-            userId: result.user.uid
-          });
+          console.log('AuthProvider: Got redirect result, user:', result.user.email);
+          // Get additional user data from Firestore
+          const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+          const userData = userDoc.exists() ? userDoc.data() : {};
           
-          const user = result.user;
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          // Combine Firebase user with Firestore data
+          const fullUser: User = {
+            id: result.user.uid,
+            email: result.user.email || '',
+            displayName: result.user.displayName || userData.displayName || '',
+            role: userData.role || 'user',
+            leagues: userData.leagues || [],
+            teams: userData.teams || [],
+            badges: userData.badges || []
+          };
           
-          if (userDoc.exists()) {
-            console.log('Existing user found, signing in...');
-            const userData = userDoc.data();
-            setCurrentUser({ 
-              id: user.uid,
-              ...userData,
-              teams: userData.teams || [],
-              leagues: userData.leagues || [],
-              badges: userData.badges || []
-            } as User);
-            toast.success('Signed in successfully');
-          } else {
-            // Check if this was a sign up attempt
-            const googleRole = localStorage.getItem('pendingGoogleSignUpRole');
-            
-            if (googleRole) {
-              console.log('New user signing up with role:', googleRole);
-              // Create a new user profile
-              const userData: User = {
-                id: user.uid,
-                email: user.email || '',
-                displayName: user.displayName || 'Google User',
-                role: googleRole as UserRole,
-                leagues: [],
-                teams: [],
-                badges: [],
-                profilePicture: user.photoURL || undefined,
-                createdAt: new Date()
-              };
-              
-              await setDoc(doc(db, 'users', user.uid), userData);
-              setCurrentUser(userData);
-              toast.success('Account created successfully');
-              
-              // Clear stored role
-              localStorage.removeItem('pendingGoogleSignUpRole');
-            } else {
-              console.log('New user without role, redirecting to sign up...');
-              // Handle new user without role - they need to sign up first
-              setCurrentUser(null);
-              toast.error('Please sign up first');
-              await firebaseSignOut(auth);
-            }
-          }
-        } else {
-          console.log('No redirect result found');
+          setCurrentUser(fullUser);
+          setLoading(false);
         }
-      } catch (error: any) {
-        console.error('Error handling redirect result:', error);
-        if (error.code === 'auth/internal-error') {
-          console.error('Internal auth error details:', error);
-        }
-        toast.error('Failed to complete authentication');
-        // Clean up any pending roles
-        localStorage.removeItem('pendingGoogleSignUpRole');
-      } finally {
+      } catch (error) {
+        console.error('AuthProvider: Error handling redirect:', error);
         setLoading(false);
       }
     };
 
-    // Call handleRedirectResult immediately
     handleRedirectResult();
   }, []);
 
-  // Handle auth state changes
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      try {
-        if (firebaseUser) {
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDoc = await getDoc(userDocRef);
+  // Auth state change listener
+  useEffect(() => {
+    console.log('AuthProvider: Setting up auth state listener');
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('AuthProvider: Auth state changed:', firebaseUser?.email);
+      
+      if (firebaseUser) {
+        try {
+          // Get additional user data from Firestore
+          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+          const userData = userDoc.exists() ? userDoc.data() : {};
           
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const user = { 
-              id: firebaseUser.uid, 
-              ...userData,
-              teams: userData.teams || [],
-              leagues: userData.leagues || [],
-              badges: userData.badges || []
-            } as User;
-            
-            setCurrentUser(user);
-
-            // Check for pending team invite but don't redirect directly
-            // Let the components handle the navigation based on returnUrl
-            const pendingInvite = getStoredInvite();
-            if (pendingInvite) {
-              console.log('Found stored invite in auth state observer:', pendingInvite);
-              // Don't clear the invite yet - the component handling the navigation
-              // will need this information and clear it when done
-            }
-          } else {
-            console.warn('User document not found for authenticated user');
-            setCurrentUser(null);
-          }
-        } else {
+          // Map Firebase user to our User type
+          const user: User = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || '',
+            displayName: firebaseUser.displayName || userData.displayName || '',
+            role: userData.role || 'user',
+            leagues: userData.leagues || [],
+            teams: userData.teams || [],
+            badges: userData.badges || []
+          };
+          
+          setCurrentUser(user);
+        } catch (error) {
+          console.error('Error getting user data:', error);
           setCurrentUser(null);
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } else {
         setCurrentUser(null);
-        toast.error('Error loading user profile');
-      } finally {
-        setLoading(false);
       }
+      
+      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return unsubscribe;
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -262,77 +210,99 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
+      console.log('Initiating Google sign in...');
       
-      // Clear any existing pending roles and state
-      localStorage.removeItem('pendingGoogleSignUpRole');
-      
-      // Get a fresh provider instance
-      const provider = getFreshGoogleProvider();
-      
-      // Log the attempt
-      console.log('Starting Google sign-in redirect...', {
-        authDomain: auth.config.authDomain,
-        providerId: provider.providerId
+      // Configure Google provider
+      googleProvider.setCustomParameters({
+        prompt: 'select_account'
       });
       
-      // Force clear any existing auth state
-      await firebaseSignOut(auth);
+      // Use redirect instead of popup for better reliability
+      await signInWithRedirect(auth, googleProvider);
       
-      // Add a small delay to ensure state is cleared
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Attempt the redirect
-      await signInWithRedirect(auth, provider);
-      // The redirect will happen here
+      // The redirect will happen here, and the result will be handled
+      // by the useEffect hook above when the page reloads
     } catch (error: any) {
       console.error('Google sign in error:', error);
       setLoading(false);
-      
-      // Handle specific error cases
-      if (error.code === 'auth/popup-closed-by-user') {
-        toast.error('Sign in was cancelled');
-      } else if (error.code === 'auth/popup-blocked') {
-        toast.error('Please allow popups for this site');
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        // This is normal when multiple popups are triggered
-        console.log('Cancelled duplicate popup request');
-      } else if (error.code === 'auth/network-request-failed') {
-        toast.error('Network error. Please check your connection');
-      } else if (error.code === 'auth/internal-error') {
-        console.error('Internal auth error:', error);
-        toast.error('Authentication service temporarily unavailable');
-      } else {
-        toast.error('Failed to sign in with Google');
-      }
+      toast.error('Failed to sign in with Google');
       throw error;
     }
   };
 
   const signUpWithGoogle = async (role: UserRole) => {
     try {
-      setLoading(true);
+      // Configure Google provider with login_hint to improve user experience
+      googleProvider.setCustomParameters({
+        prompt: 'select_account',
+        login_hint: ''
+      });
       
-      // Store the role in localStorage before redirect
-      localStorage.setItem('pendingGoogleSignUpRole', role);
+      console.log('Initiating Google sign up for role:', role);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
       
-      // Get a fresh provider instance
-      const provider = getFreshGoogleProvider();
+      // Check if user already exists
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
       
-      console.log('Starting Google sign-up redirect...');
-      await signInWithRedirect(auth, provider);
-      // The redirect will happen here
+      if (userDoc.exists()) {
+        // User already exists, just sign them in
+        const userData = userDoc.data();
+        setCurrentUser({ 
+          id: user.uid,
+          ...userData,
+          teams: userData.teams || [],
+          leagues: userData.leagues || [],
+          badges: userData.badges || []
+        } as User);
+        toast.success('Welcome back! You already have an account');
+        
+        // Check for pending team invite - but DO NOT clear it here
+        const pendingInvite = getStoredInvite();
+        if (pendingInvite) {
+          console.log('Found pending invite after existing Google user sign up:', pendingInvite);
+          // DO NOT clear the invite - let the RegisterPage handle the redirect
+        }
+      } else {
+        // Create a new user profile
+        const userData: User = {
+          id: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || 'Google User',
+          role,
+          leagues: [],
+          teams: [],
+          badges: [],
+          profilePicture: user.photoURL || undefined,
+          createdAt: new Date()
+        };
+        
+        await setDoc(doc(db, 'users', user.uid), userData);
+        setCurrentUser(userData);
+        toast.success('Account created successfully with Google');
+        
+        // Check for pending team invite - but DO NOT clear it here
+        const pendingInvite = getStoredInvite();
+        if (pendingInvite) {
+          console.log('Found pending invite after new Google user sign up:', pendingInvite);
+          // DO NOT clear the invite - let the RegisterPage handle the redirect
+        }
+      }
     } catch (error: any) {
       console.error('Google sign up error:', error);
-      localStorage.removeItem('pendingGoogleSignUpRole');
-      setLoading(false);
-      
-      // Handle specific error cases
       if (error.code === 'auth/popup-closed-by-user') {
-        toast.error('Sign up was cancelled');
+        // User closed the popup, this is not an error that should be shown to the user
+        console.log('User cancelled sign up by closing the popup');
+        // Don't show any toast for this case - it's not an error to the user
+        return; // Return without throwing so it doesn't bubble up as an error
       } else if (error.code === 'auth/popup-blocked') {
-        toast.error('Please allow popups for this site');
-      } else if (error.code === 'auth/network-request-failed') {
-        toast.error('Network error. Please check your connection');
+        toast.error('Popup was blocked. Please allow popups for this site.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // Another silent case, don't show error
+        console.log('Popup request was cancelled');
+        return;
+      } else if (error.code === 'auth/internal-error') {
+        toast.error('An error occurred. Please try again or use email signup instead.');
       } else {
         toast.error('Failed to sign up with Google');
       }
@@ -342,27 +312,110 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signInWithApple = async () => {
     try {
-      console.log('Initiating Apple sign in...');
-      await signInWithRedirect(auth, appleProvider);
-      // The redirect will happen here, and the result will be handled in the useEffect above
+      const result = await signInWithPopup(auth, appleProvider);
+      const user = result.user;
+      
+      // Check if this Apple user exists in our users collection
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (userDoc.exists()) {
+        // User exists, set current user from Firestore data
+        const userData = userDoc.data();
+        setCurrentUser({ 
+          id: user.uid,
+          ...userData,
+          teams: userData.teams || [],
+          leagues: userData.leagues || [],
+          badges: userData.badges || []
+        } as User);
+        toast.success('Signed in successfully with Apple');
+      } else {
+        // User signed in with Apple but doesn't have a profile
+        // They need to complete registration with role selection
+        await firebaseSignOut(auth);
+        toast.error('Please sign up with Apple first to create your profile');
+      }
     } catch (error: any) {
       console.error('Apple sign in error:', error);
-      toast.error('Failed to sign in with Apple');
+      if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, don't show error
+        console.log('User cancelled sign in by closing the popup');
+        return;
+      } else if (error.code === 'auth/popup-blocked') {
+        toast.error('Popup was blocked. Please allow popups for this site.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        console.log('Popup request was cancelled');
+        return;
+      } else if (error.code === 'auth/internal-error') {
+        toast.error('An error occurred. Please try again or use email login instead.');
+      } else {
+        toast.error('Failed to sign in with Apple');
+      }
       throw error;
     }
   };
 
   const signUpWithApple = async (role: UserRole) => {
     try {
-      // Store the role in localStorage before redirect
-      localStorage.setItem('pendingAppleSignUpRole', role);
+      const result = await signInWithPopup(auth, appleProvider);
+      const user = result.user;
       
-      await signInWithRedirect(auth, appleProvider);
-      // The redirect will happen here, and the result will be handled in the useEffect above
+      // Check if user already exists
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      
+      if (userDoc.exists()) {
+        // User already exists, just sign them in
+        const userData = userDoc.data();
+        setCurrentUser({ 
+          id: user.uid,
+          ...userData,
+          teams: userData.teams || [],
+          leagues: userData.leagues || [],
+          badges: userData.badges || []
+        } as User);
+        toast.success('Welcome back! You already have an account');
+      } else {
+        // Create a new user profile
+        // Note: Apple may not provide displayName on first sign in
+        // We'll use email or a generic name if not available
+        let displayName = user.displayName;
+        if (!displayName) {
+          // Extract name from email or use generic name
+          displayName = user.email ? user.email.split('@')[0] : 'Apple User';
+        }
+        
+        const userData: User = {
+          id: user.uid,
+          email: user.email || '',
+          displayName,
+          role,
+          leagues: [],
+          teams: [],
+          badges: [],
+          profilePicture: user.photoURL || undefined,
+          createdAt: new Date()
+        };
+        
+        await setDoc(doc(db, 'users', user.uid), userData);
+        setCurrentUser(userData);
+        toast.success('Account created successfully with Apple');
+      }
     } catch (error: any) {
       console.error('Apple sign up error:', error);
-      localStorage.removeItem('pendingAppleSignUpRole');
-      toast.error('Failed to sign up with Apple');
+      if (error.code === 'auth/popup-closed-by-user') {
+        // User closed the popup, don't show error
+        console.log('User cancelled sign up by closing the popup');
+        return;
+      } else if (error.code === 'auth/popup-blocked') {
+        toast.error('Popup was blocked. Please allow popups for this site.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        console.log('Popup request was cancelled');
+        return;
+      } else if (error.code === 'auth/internal-error') {
+        toast.error('An error occurred. Please try again or use email signup instead.');
+      } else {
+        toast.error('Failed to sign up with Apple');
+      }
       throw error;
     }
   };

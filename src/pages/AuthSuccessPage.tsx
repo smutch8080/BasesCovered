@@ -64,7 +64,7 @@ const AuthSuccessPage: React.FC = () => {
               user.role === 'manager' || 
               user.role === 'player' || 
               user.role === 'parent') {
-            destination = '/dashboard';
+            destination = '/';
             console.log('AuthSuccessPage: User has dashboard access role, redirecting to dashboard');
           } else {
             console.log('AuthSuccessPage: User has regular role, redirecting to homepage');
@@ -137,7 +137,7 @@ const AuthSuccessPage: React.FC = () => {
             <button
               onClick={() => {
                 const destination = currentUser?.role === 'coach' || currentUser?.role === 'league_manager' 
-                  ? '/dashboard' 
+                  ? '/' 
                   : '/';
                 navigate(destination);
               }}

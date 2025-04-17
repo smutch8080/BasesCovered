@@ -80,12 +80,17 @@ import MessagingPage from './pages/MessagingPage';
 import PhoneAuthTestPage from './pages/PhoneAuthTestPage';
 import TestNotificationsPage from './pages/test-notifications';
 import AuthSuccessPage from './pages/AuthSuccessPage';
+import PrivateTrainingPage from './pages/PrivateTrainingPage';
+import SummerTrainingTeamPage from './pages/SummerTrainingTeamPage';
 
 // Admin Pages
 import UsersPage from './pages/admin/UsersPage';
 import HelpArticlesPage from './pages/admin/HelpArticlesPage';
 import CTAManagementPage from './pages/admin/CTAManagementPage';
 import NotificationAdminPage from './pages/admin/NotificationAdminPage';
+
+// New BasesCovered Clinics Page
+import BasesCoveredClinicsPage from './pages/BasesCoveredClinicsPage';
 
 export default function Routes() {
   const { currentUser } = useAuth();
@@ -122,6 +127,8 @@ export default function Routes() {
       <Route path="/chants/:chantId" element={<ChantDetailPage />} />
       <Route path="/clinics" element={<ClinicsPage />} />
       <Route path="/clinics/:clinicId" element={<ClinicDetailPage />} />
+      <Route path="/private-training" element={<PrivateTrainingPage />} />
+      <Route path="/summer-team" element={<SummerTrainingTeamPage />} />
       <Route path="/resources" element={<CommunityResourcesPage />} />
       <Route path="/invite/:teamId/:inviteHash" element={<TeamInvitePage />} />
       <Route path="/community-events" element={<PublicEventsPage />} />
@@ -445,6 +452,9 @@ export default function Routes() {
           <TestNotificationsPage />
         </ProtectedRoute>
       } />
+
+      {/* BasesCovered Clinics Route */}
+      <Route path="/bases-covered-clinics" element={<BasesCoveredClinicsPage />} />
 
       {/* Catch-all route for 404 */}
       <Route path="*" element={<NotFoundPage />} />

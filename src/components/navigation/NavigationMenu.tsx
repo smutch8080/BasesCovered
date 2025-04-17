@@ -127,7 +127,7 @@ export const NavigationMenu: React.FC<Props> = ({ isMobileMenuOpen, setIsMobileM
   return (
     <>
       {/* Desktop Menu */}
-      <div className="hidden xl:block border-t">
+      <div className="hidden md:block border-t">
         <nav className="flex items-center gap-6 h-12">
           {mainMenu.map((item, index) => (
             item.items ? (
@@ -178,14 +178,14 @@ export const NavigationMenu: React.FC<Props> = ({ isMobileMenuOpen, setIsMobileM
       {/* Mobile Menu */}
       <>
         <div 
-          className={`fixed inset-0 bg-black/30 z-40 transition-opacity xl:hidden
+          className={`fixed inset-0 bg-black/30 z-40 transition-opacity md:hidden
             ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
         <aside 
           className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-xl z-40 
-            transform transition-transform duration-200 ease-in-out xl:hidden
+            transform transition-transform duration-200 ease-in-out md:hidden
             ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
         >
           <div className="h-full overflow-y-auto">

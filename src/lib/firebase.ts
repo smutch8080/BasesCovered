@@ -4,10 +4,7 @@ import {
   GoogleAuthProvider, 
   OAuthProvider, 
   RecaptchaVerifier,
-  connectAuthEmulator,
-  Auth,
-  setPersistence,
-  browserLocalPersistence
+  connectAuthEmulator
 } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator, getDoc, doc } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
@@ -25,62 +22,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app;
-try {
-  // Check if Firebase is already initialized
-  app = initializeApp(firebaseConfig);
-  
-  // Verify configuration loaded correctly
-  const currentConfig = app.options;
-  if (!currentConfig.apiKey || !currentConfig.authDomain || !currentConfig.projectId) {
-    throw new Error('Firebase configuration not loaded correctly');
-  }
-  
-  // Log initialization for debugging
-  console.log('Firebase initialized with config:', {
-    authDomain: currentConfig.authDomain,
-    projectId: currentConfig.projectId,
-    // Don't log sensitive info like API key
-  });
-} catch (error: any) {
-  if (error.code === 'app/duplicate-app') {
-    // App already exists, get the existing one
-    console.log('Using existing Firebase app instance');
-    app = initializeApp();
-  } else {
-    console.error('Error initializing Firebase:', error);
-    throw error;
-  }
-}
+const app = initializeApp(firebaseConfig);
 
-// Initialize Auth with error handling
-let auth: Auth;
-try {
-  auth = getAuth(app);
-  auth.useDeviceLanguage(); // Use device's preferred language for SMS
-  
-  // Configure auth persistence to LOCAL
-  setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-      console.log('Firebase Auth persistence set to LOCAL');
-    })
-    .catch((error) => {
-      console.error('Error setting auth persistence:', error);
-    });
-  
-  // Add auth state observer for debugging
-  auth.onAuthStateChanged((user) => {
-    console.log('Auth state changed:', user ? `User ${user.uid} signed in` : 'User signed out');
-  });
-  
-  console.log('Firebase Auth initialized successfully');
-} catch (error) {
-  console.error('Error initializing Firebase Auth:', error);
-  throw error;
-}
-
-// Export the auth instance
-export { auth };
+// Initialize Auth
+export const auth = getAuth(app);
+auth.useDeviceLanguage(); // Use device's preferred language for SMS
 
 // For development with emulators
 if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true') {
@@ -94,32 +40,13 @@ if (import.meta.env.DEV && import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true
 
 // Initialize providers
 export const googleProvider = new GoogleAuthProvider();
-// Configure Google provider with specific settings for iframe handling
+// Configure Google provider
 googleProvider.setCustomParameters({
-  prompt: 'select_account',
-  access_type: 'offline',
-  // Add additional parameters for better iframe handling
-  ux_mode: 'redirect',
-  include_granted_scopes: 'true'
+  prompt: 'select_account'
 });
-
 // Add scopes for better profile access
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.email');
-googleProvider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-
-// Helper to get a fresh provider instance with proper configuration
-export const getFreshGoogleProvider = () => {
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({
-    prompt: 'select_account',
-    access_type: 'offline',
-    ux_mode: 'redirect',
-    include_granted_scopes: 'true'
-  });
-  provider.addScope('https://www.googleapis.com/auth/userinfo.email');
-  provider.addScope('https://www.googleapis.com/auth/userinfo.profile');
-  return provider;
-};
+googleProvider.addScope('profile');
+googleProvider.addScope('email');
 
 // Initialize Apple provider
 export const appleProvider = new OAuthProvider('apple.com');
