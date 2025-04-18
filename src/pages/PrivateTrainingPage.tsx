@@ -20,7 +20,7 @@ const PrivateTrainingPage = () => {
               Private Training
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl">
-              Because some goals need more than regular team reps. Elite's Private Training gives your athlete laser‑focused coaching, state‑of‑the‑art tech, and a clear plan to level‑up.
+              Because some goals need more than regular team reps. BasesCovered's Private Training gives your athlete laser‑focused coaching, state‑of‑the‑art tech, and a clear plan to level‑up.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -446,7 +446,7 @@ const PrivateTrainingPage = () => {
             </div>
           </div>
           <p className="text-center mt-8 text-gray-600">
-            Bonus: All packages unlock member‑only facility hours and discounted access to Elite Clinics.
+            Bonus: All packages unlock member‑only facility hours and discounted access to BasesCovered Clinics.
           </p>
         </div>
       </section>
@@ -470,12 +470,12 @@ const PrivateTrainingPage = () => {
                   <p className="text-gray-600">Each drill, rep, and homework assignment is built for your goals.</p>
                 </div>
                 <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <h3 className="font-bold mb-3">MLB‑Level Tech</h3>
-                  <p className="text-gray-600">Rapsodo®, Blast Motion®, high‑speed video—the same tools college programs use.</p>
+                  <h3 className="font-bold mb-3">Tech</h3>
+                  <p className="text-gray-600">Video analysis, swing analysis, app access for drills and continued work away from the field.</p>
                 </div>
                 <div className="bg-white rounded-xl p-6 shadow-sm">
                   <h3 className="font-bold mb-3">Certified & Battle‑Tested Coaches</h3>
-                  <p className="text-gray-600">Former college standouts and current Elite staff who coach every day.</p>
+                  <p className="text-gray-600"> Experienced staff who coach and exhibit the BasesCovered philosophyevery day.</p>
                 </div>
                 <div className="bg-white rounded-xl p-6 shadow-sm">
                   <h3 className="font-bold mb-3">Mindset Built‑In</h3>

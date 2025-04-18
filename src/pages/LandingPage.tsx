@@ -252,7 +252,7 @@ const PricingPackages = () => {
         </div>
 
         <p className="text-center mt-8 text-gray-600">
-          Bonus: All packages unlock member‑only facility hours and discounted access to Elite Clinics.
+          Bonus: All packages unlock member‑only facility hours and discounted access to BasesCovered Clinics.
         </p>
       </div>
     </section>

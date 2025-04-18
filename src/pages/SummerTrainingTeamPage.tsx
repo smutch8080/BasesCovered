@@ -33,10 +33,10 @@ const SummerTrainingTeamPage = () => {
         <div className="container mx-auto px-4 py-32 relative">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              Elite Summer Training Team
+              BasesCovered Summer Training Team
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl">
-              Join our intensive summer program designed to transform dedicated players into elite athletes through expert coaching and competitive training.
+              Join our intensive summer program designed to transform dedicated players into  athletes through expert coaching and competitive training.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -62,7 +62,7 @@ const SummerTrainingTeamPage = () => {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2">
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                When the last out of spring is recorded, most teams shut down. Elite's Summer Practice Team ramps up. 
+                When the last out of spring is recorded, most teams shut down. BasesCovered's Summer Practice Team ramps up. 
                 We assemble dedicated athletes from 8U, 10U, 12U, 14U, and 16U into a single, high‑tempo training cohort 
                 that meets weekly, mixes age groups for mentoring, and finishes every phase with live scrimmages. 
                 The result? Players return to their fall clubs sharper, stronger, and more confident than ever.
@@ -128,7 +128,7 @@ const SummerTrainingTeamPage = () => {
               </div>
               <div className="grid grid-cols-3 p-4">
                 <div className="font-semibold">Facility</div>
-                <div className="col-span-2">Elite indoor HQ + rotating partner fields</div>
+                <div className="col-span-2"> Rotating partner fields and indoor facilities when applicable</div>
               </div>
               <div className="grid grid-cols-3 p-4">
                 <div className="font-semibold">Fee</div>
@@ -237,7 +237,7 @@ const SummerTrainingTeamPage = () => {
               </div>
             </div>
             <p className="mt-6 text-gray-600 italic text-center">
-              Every second Friday, the full block becomes a 6‑inning scrimmage with umpires and live scoreboard.
+              Every second Friday, the full block becomes a 6‑inning scrimmage.
             </p>
           </div>
         </div>
@@ -256,7 +256,6 @@ const SummerTrainingTeamPage = () => {
               />
               <div className="text-gray-600 space-y-2">
                 <p><strong>Ages:</strong> 8U‑10U</p>
-                <p><strong>Lead Coach:</strong> Coach Jenna (former D1 infielder)</p>
                 <p><strong>Focus:</strong> Foundational mechanics • Confidence in game flow</p>
               </div>
             </div>
@@ -268,7 +267,6 @@ const SummerTrainingTeamPage = () => {
               />
               <div className="text-gray-600 space-y-2">
                 <p><strong>Ages:</strong> 12U</p>
-                <p><strong>Lead Coach:</strong> Coach Austin (Elite 12U HC)</p>
                 <p><strong>Focus:</strong> Advanced fundamentals • Situational IQ • Basepath aggression</p>
               </div>
             </div>
@@ -280,7 +278,6 @@ const SummerTrainingTeamPage = () => {
               />
               <div className="text-gray-600 space-y-2">
                 <p><strong>Ages:</strong> 14U‑16U</p>
-                <p><strong>Lead Coach:</strong> Coach Kim (ex‑NAIA pitcher)</p>
                 <p><strong>Focus:</strong> Velocity & power gain • College‑style drills • Leadership reps</p>
               </div>
             </div>

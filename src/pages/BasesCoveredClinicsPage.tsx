@@ -30,10 +30,10 @@ const BasesCoveredClinicsPage = () => {
         <div className="container mx-auto px-4 py-32 relative">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              Elite Softball Clinics
+              BasesCovered Softball Clinics
             </h1>
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-2xl">
-              Intensive training sessions led by elite coaches and college players. Master fundamentals and advanced techniques in a focused environment.
+              Intensive training sessions led by experienced coaches and players. Master fundamentals and advanced techniques in a focused environment.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -56,7 +56,7 @@ const BasesCoveredClinicsPage = () => {
       {/* What Makes an Elite Clinic Different */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">What Makes an Elite Clinic Different?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">What Makes a BasesCovered Clinic Different?</h2>
           
           <div className="space-y-16">
             <div className="flex flex-col md:flex-row items-center gap-8">
@@ -95,7 +95,7 @@ const BasesCoveredClinicsPage = () => {
               <div className="md:w-1/2">
                 <img 
                   src="/assets/images/Elite Clinic/433b91b742b98351aa72c3f1738f4868-large.jpeg" 
-                  alt="Elite clinic instruction"
+                  alt="BasesCovered clinic instruction"
                   className="rounded-lg shadow-md w-full h-[400px] object-cover"
                 />
               </div>
@@ -147,7 +147,7 @@ const BasesCoveredClinicsPage = () => {
                     <p className="text-sm text-gray-500">Bat speed & lower‑body power</p>
                   </div>
                 </div>
-                <p className="text-brand-primary font-medium">Avg. exit velo jump: +4 mph in 4 weeks; 92% of hitters reported better timing vs. velo machines.</p>
+                <p className="text-brand-primary font-medium">Focused work on bat speed, exit velocity, and lower-body power.</p>
               </div>
             </div>
 
@@ -167,7 +167,7 @@ const BasesCoveredClinicsPage = () => {
                     <p className="text-sm text-gray-500">Pitching mechanics & movement</p>
                   </div>
                 </div>
-                <p className="text-brand-primary font-medium">11 pitchers added a new movement pitch; overall strike‑zone command improved by 17% on Rapsodo reports.</p>
+                <p className="text-brand-primary font-medium">Delivered a focused clinic on pitching mechanics and movements to help athletes improve their command and consistency. </p>
               </div>
             </div>
 
@@ -187,7 +187,7 @@ const BasesCoveredClinicsPage = () => {
                     <p className="text-sm text-gray-500">Infield & outfield defense</p>
                   </div>
                 </div>
-                <p className="text-brand-primary font-medium">Team relay record broken twice; 8 athletes shaved 0.18 s off transfer‑to‑throw times.</p>
+                <p className="text-brand-primary font-medium">Drills and work to help infielders and outfields improve their defense and game awareness.</p>
               </div>
             </div>
           </div>
@@ -286,7 +286,7 @@ const BasesCoveredClinicsPage = () => {
                 </div>
                 <div className="grid grid-cols-5 gap-4 p-4 items-center hover:bg-gray-50">
                   <div>Jun 15–16</div>
-                  <div className="col-span-2">Elite Pitching Lab</div>
+                  <div className="col-span-2">Strong Pitching Lab</div>
                   <div>12U–16U</div>
                   <div className="flex items-center gap-2">
                     <span>8</span>

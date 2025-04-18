@@ -137,19 +137,19 @@ export const Header: React.FC = () => {
             <div className="hidden md:flex items-center gap-6">
               <Link 
                 to="/private-training" 
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium text-sm"
               >
                 Private Training
               </Link>
               <Link 
                 to="/bases-covered-clinics" 
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium text-sm"
               >
                 BasesCovered Clinics
               </Link>
               <Link 
                 to="/summer-team" 
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 font-medium text-sm"
               >
                 Summer Practice Teams
               </Link>
@@ -284,21 +284,21 @@ export const Header: React.FC = () => {
                 <>
                   <Link 
                     to="/private-training" 
-                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium text-sm"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Private Training
                   </Link>
                   <Link 
                     to="/bases-covered-clinics" 
-                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium text-sm"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     BasesCovered Clinics
                   </Link>
                   <Link 
                     to="/summer-team" 
-                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium"
+                    className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg font-medium text-sm"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Summer Practice Teams
